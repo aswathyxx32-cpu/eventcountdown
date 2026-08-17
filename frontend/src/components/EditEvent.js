@@ -24,6 +24,15 @@ function EditEvent({
 
     setMessage("");
 
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      setMessage("Please login first.");
+      return;
+    }
+
+    const user = JSON.parse(storedUser);
+
     const updatedEvent = {
       title: title,
       target_date: targetDate,
@@ -37,6 +46,7 @@ function EditEvent({
 
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Token ${user.token}`,
         },
 
         body: JSON.stringify(updatedEvent),

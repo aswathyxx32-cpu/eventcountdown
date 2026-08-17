@@ -32,6 +32,7 @@ function AddEvent({ onEventAdded }) {
 
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Token ${user.token}`,
       },
 
       body: JSON.stringify(newEvent),
