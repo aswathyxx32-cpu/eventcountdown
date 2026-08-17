@@ -110,22 +110,22 @@ function Login() {
     <div className="auth-form">
 
       <h1>
-        Event Countdown
+        Daydream ✨
       </h1>
 
 
       <h2>
-        Welcome Back ✨
+        Welcome Back
       </h2>
 
 
       <p className="login-caption">
-        Every moment is worth counting down to.
+        Every moment is worth dreaming about.
       </p>
 
 
       <p className="login-subcaption">
-        Keep track of the moments that matter.
+        Keep track of the moments you're looking forward to.
       </p>
 
 

@@ -1,18 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-
 function Register() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] =
-    useState("");
-
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
-
 
   const handleSubmit = (e) => {
 
@@ -20,18 +16,13 @@ function Register() {
 
     setMessage("");
 
-
     // Check passwords
     if (password !== confirmPassword) {
 
-      setMessage(
-        "Passwords do not match."
-      );
+      setMessage("Passwords do not match.");
 
       return;
-
     }
-
 
     fetch(
       "http://127.0.0.1:8000/api/register/",
@@ -43,19 +34,14 @@ function Register() {
         },
 
         body: JSON.stringify({
-
           username: username,
-
           password: password,
-
         }),
       }
     )
 
       .then((response) => {
-
         return response.json();
-
       })
 
       .then((data) => {
@@ -65,28 +51,23 @@ function Register() {
           data
         );
 
-
         // Registration failed
         if (data.error) {
 
           setMessage(data.error);
 
           return;
-
         }
-
 
         // Registration successful
         setMessage(
           "Account created successfully! ✨"
         );
 
-
         // Clear form
         setUsername("");
         setPassword("");
         setConfirmPassword("");
-
 
         // Go to login after short delay
         setTimeout(() => {
@@ -112,34 +93,27 @@ function Register() {
 
   };
 
-
   return (
 
     <div className="auth-form">
 
       <h1>
-        Event Countdown
+        Daydream ✨
       </h1>
 
-
       <h2>
-        Create Your Account ✨
+        Create Your Account
       </h2>
-
 
       <p className="login-caption">
         Your next special moment starts here.
       </p>
 
-
       <p className="login-subcaption">
         Create an account and start counting down.
       </p>
 
-
-      <form
-        onSubmit={handleSubmit}
-      >
+      <form onSubmit={handleSubmit}>
 
         <input
           type="text"
@@ -151,7 +125,6 @@ function Register() {
           required
         />
 
-
         <input
           type="password"
           placeholder="Create a password"
@@ -162,26 +135,21 @@ function Register() {
           required
         />
 
-
         <input
           type="password"
           placeholder="Confirm password"
           value={confirmPassword}
           onChange={(e) =>
-            setConfirmPassword(
-              e.target.value
-            )
+            setConfirmPassword(e.target.value)
           }
           required
         />
-
 
         <button type="submit">
           Create Account
         </button>
 
       </form>
-
 
       {message && (
 
@@ -190,7 +158,6 @@ function Register() {
         </p>
 
       )}
-
 
       <p>
 
@@ -207,6 +174,5 @@ function Register() {
   );
 
 }
-
 
 export default Register;
