@@ -1,237 +1,123 @@
 import { useState } from "react";
 
+const API_URL = "https://daydream-7ho9.onrender.com";
+
 function EditEvent({
   event,
   onEventUpdated,
   onCancel,
 }) {
-
   const [title, setTitle] = useState(
-    event.title
+    event.title || ""
   );
 
-  const [targetDate, setTargetDate] =
-    useState(
-      event.target_date
-        ? event.target_date.slice(0, 16)
-        : ""
-    );
+  const [targetDate, setTargetDate] = useState(
+    event.target_date
+      ? event.target_date.slice(0, 16)
+      : ""
+  );
 
-  const [error, setError] =
-    useState("");
-
+  const [message, setMessage] = useState("");
 
   const handleSubmit = (e) => {
-
     e.preventDefault();
 
-    setError("");
+    setMessage("");
 
-
-    // Get logged-in user
-    const storedUser =
-      localStorage.getItem("user");
-
-
-    if (!storedUser) {
-
-      setError(
-        "Please login again."
-      );
-
-      return;
-
-    }
-
-
-    const user =
-      JSON.parse(storedUser);
-
-
-    if (!user.token) {
-
-      setError(
-        "Authentication token missing."
-      );
-
-      return;
-
-    }
-
-
-    const updatedData = {
-
+    const updatedEvent = {
       title: title,
-
       target_date: targetDate,
-
+      owner: event.owner,
     };
 
-
     fetch(
-      `http://127.0.0.1:8000/api/events/${event.id}/`,
+      `${API_URL}/api/events/${event.id}/`,
       {
-
         method: "PUT",
 
         headers: {
-
-          "Content-Type":
-            "application/json",
-
-          "Authorization":
-            `Token ${user.token}`,
-
+          "Content-Type": "application/json",
         },
 
-        body:
-          JSON.stringify(updatedData),
-
+        body: JSON.stringify(updatedEvent),
       }
     )
-
-      .then((response) => {
-
-        if (response.status === 401) {
-
-          throw new Error(
-            "Authentication failed. Please login again."
-          );
-
-        }
-
-
-        if (response.status === 404) {
-
-          throw new Error(
-            "Event not found."
-          );
-
-        }
-
+      .then(async (response) => {
+        const data = await response.json();
 
         if (!response.ok) {
-
           throw new Error(
-            "Failed to update event."
+            data.detail ||
+            data.error ||
+            "Failed to update event"
           );
-
         }
 
-
-        return response.json();
-
+        return data;
       })
-
       .then((data) => {
-
-        console.log(
-          "Event updated:",
-          data
-        );
-
+        console.log("Event updated:", data);
 
         onEventUpdated(data);
-
       })
-
       .catch((error) => {
-
         console.error(
           "Error updating event:",
           error
         );
 
-        setError(
-          error.message
-        );
-
+        setMessage(error.message);
       });
-
   };
 
-
   return (
-
-    <div className="edit-event">
+    <form
+      className="add-event-form"
+      onSubmit={handleSubmit}
+    >
 
       <h2>
         Edit Event
       </h2>
 
+      <input
+        type="text"
+        placeholder="Event name"
+        value={title}
+        onChange={(e) =>
+          setTitle(e.target.value)
+        }
+        required
+      />
 
-      <form
-        onSubmit={handleSubmit}
+      <input
+        type="datetime-local"
+        value={targetDate}
+        onChange={(e) =>
+          setTargetDate(e.target.value)
+        }
+        required
+      />
+
+      <button type="submit">
+        Save Changes
+      </button>
+
+      <button
+        type="button"
+        onClick={onCancel}
       >
+        Cancel
+      </button>
 
-        <input
+      {message && (
+        <p className="auth-message">
+          {message}
+        </p>
+      )}
 
-          type="text"
-
-          placeholder="Event name"
-
-          value={title}
-
-          onChange={(e) =>
-            setTitle(
-              e.target.value
-            )
-          }
-
-          required
-
-        />
-
-
-        <input
-
-          type="datetime-local"
-
-          value={targetDate}
-
-          onChange={(e) =>
-            setTargetDate(
-              e.target.value
-            )
-          }
-
-          required
-
-        />
-
-
-        <div>
-
-          <button type="submit">
-            Save Changes
-          </button>
-
-
-          <button
-            type="button"
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
-
-        </div>
-
-
-        {error && (
-
-          <p>
-            {error}
-          </p>
-
-        )}
-
-      </form>
-
-    </div>
-
+    </form>
   );
-
 }
-
 
 export default EditEvent;

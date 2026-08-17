@@ -1,371 +1,133 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-import EventCard from "./EventCard";
-import AddEvent from "./AddEvent";
-import EditEvent from "./EditEvent";
+const API_URL = "https://daydream-7ho9.onrender.com";
 
-
-function Dashboard() {
-
-  const [events, setEvents] = useState([]);
-  const [editingEvent, setEditingEvent] = useState(null);
+function Register() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setMessage("");
 
-  // ==========================================
-  // LOGOUT
-  // ==========================================
-
-  const handleLogout = () => {
-
-    localStorage.removeItem("user");
-
-    navigate("/login");
-
-  };
-
-
-  // ==========================================
-  // LOAD EVENTS
-  // ==========================================
-
-  useEffect(() => {
-
-    const storedUser =
-      localStorage.getItem("user");
-
-
-    // No user
-    if (!storedUser) {
-
-      navigate("/login");
-
+    if (password !== confirmPassword) {
+      setMessage("Passwords do not match.");
       return;
-
     }
 
-
-    const user =
-      JSON.parse(storedUser);
-
-
-    // No token
-    if (!user.token) {
-
-      localStorage.removeItem("user");
-
-      navigate("/login");
-
-      return;
-
-    }
-
-
-    fetch(
-      "http://127.0.0.1:8000/api/events/",
-      {
-        headers: {
-
-          "Authorization":
-            `Token ${user.token}`,
-
-        },
-
-      }
-    )
-
-      .then((response) => {
-
-        if (response.status === 401) {
-
-          localStorage.removeItem(
-            "user"
-          );
-
-          navigate("/login");
-
-          throw new Error(
-            "Authentication failed"
-          );
-
-        }
-
+    fetch(`${API_URL}/api/register/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+      }),
+    })
+      .then(async (response) => {
+        const data = await response.json();
 
         if (!response.ok) {
-
-          throw new Error(
-            "Failed to fetch events"
-          );
-
+          throw new Error(data.error || "Registration failed");
         }
 
-
-        return response.json();
-
+        return data;
       })
-
       .then((data) => {
+        console.log("REGISTER RESPONSE:", data);
 
-        console.log(
-          "EVENTS:",
-          data
-        );
-
-        setEvents(data);
-
-      })
-
-      .catch((error) => {
-
-        console.error(
-          "Error fetching events:",
-          error
-        );
-
-      });
-
-  }, [navigate]);
-
-
-  // ==========================================
-  // ADD EVENT
-  // ==========================================
-
-  const handleEventAdded = (
-    newEvent
-  ) => {
-
-    setEvents(
-      (previousEvents) => [
-        ...previousEvents,
-        newEvent,
-      ]
-    );
-
-  };
-
-
-  // ==========================================
-  // DELETE EVENT
-  // ==========================================
-
-  const handleDelete = (id) => {
-
-    const storedUser =
-      localStorage.getItem("user");
-
-
-    if (!storedUser) {
-
-      navigate("/login");
-
-      return;
-
-    }
-
-
-    const user =
-      JSON.parse(storedUser);
-
-
-    fetch(
-      `http://127.0.0.1:8000/api/events/${id}/`,
-      {
-        method: "DELETE",
-
-        headers: {
-
-          "Authorization":
-            `Token ${user.token}`,
-
-        },
-
-      }
-    )
-
-      .then((response) => {
-
-        if (response.status === 401) {
-
-          localStorage.removeItem(
-            "user"
-          );
-
-          navigate("/login");
-
+        if (data.error) {
+          setMessage(data.error);
           return;
-
         }
 
+        setMessage("Account created successfully! ✨");
 
-        if (response.ok) {
+        setUsername("");
+        setPassword("");
+        setConfirmPassword("");
 
-          setEvents(
-            (previousEvents) =>
-              previousEvents.filter(
-                (event) =>
-                  event.id !== id
-              )
-          );
-
-        }
-
+        setTimeout(() => {
+          navigate("/login");
+        }, 1200);
       })
-
       .catch((error) => {
+        console.error("Registration error:", error);
 
-        console.error(
-          "Error deleting event:",
-          error
+        setMessage(
+          error.message || "Unable to connect to server."
         );
-
       });
-
   };
-
-
-  // ==========================================
-  // EDIT EVENT
-  // ==========================================
-
-  const handleEdit = (event) => {
-
-    setEditingEvent(event);
-
-  };
-
-
-  // ==========================================
-  // UPDATED EVENT
-  // ==========================================
-
-  const handleEventUpdated = (
-    updatedEvent
-  ) => {
-
-    setEvents(
-      (previousEvents) =>
-        previousEvents.map(
-          (event) =>
-            event.id ===
-            updatedEvent.id
-              ? updatedEvent
-              : event
-        )
-    );
-
-    setEditingEvent(null);
-
-  };
-
-
-  // ==========================================
-  // PAGE
-  // ==========================================
 
   return (
+    <div className="auth-form">
 
-    <div className="App">
+      <h1>Daydream ✨</h1>
 
+      <h2>Create Your Account</h2>
 
-      {/* NAVIGATION */}
+      <p className="login-caption">
+        Your next special moment starts here.
+      </p>
 
-      <nav>
+      <p className="login-subcaption">
+        Create an account and start counting down.
+      </p>
 
-        <h2>
-          Event Countdown
-        </h2>
+      <form onSubmit={handleSubmit}>
 
-
-        <button
-          onClick={handleLogout}
-        >
-          Logout
-        </button>
-
-      </nav>
-
-
-      {/* TITLE */}
-
-      <h1>
-        My Upcoming Events
-      </h1>
-
-
-      {/* ADD EVENT */}
-
-      <AddEvent
-        onEventAdded={
-          handleEventAdded
-        }
-      />
-
-
-      {/* EDIT EVENT */}
-
-      {editingEvent && (
-
-        <EditEvent
-
-          event={editingEvent}
-
-          onEventUpdated={
-            handleEventUpdated
-          }
-
-          onCancel={() =>
-            setEditingEvent(null)
-          }
-
+        <input
+          type="text"
+          placeholder="Choose a username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
         />
 
+        <input
+          type="password"
+          placeholder="Create a password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Confirm password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+
+        <button type="submit">
+          Create Account
+        </button>
+
+      </form>
+
+      {message && (
+        <p className="auth-message">
+          {message}
+        </p>
       )}
 
-
-      {/* EVENTS */}
-
-      <div className="events-container">
-
-        {events.length === 0 ? (
-
-          <p>
-            You don't have any events yet.
-          </p>
-
-        ) : (
-
-          events.map((event) => (
-
-            <EventCard
-
-              key={event.id}
-
-              event={event}
-
-              onDelete={
-                handleDelete
-              }
-
-              onEdit={
-                handleEdit
-              }
-
-            />
-
-          ))
-
-        )}
-
-      </div>
+      <p>
+        Already have an account?{" "}
+        <Link to="/login">
+          Login
+        </Link>
+      </p>
 
     </div>
-
   );
-
 }
 
-
-export default Dashboard;
+export default Register;

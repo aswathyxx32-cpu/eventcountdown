@@ -1,106 +1,71 @@
 import { useState } from "react";
 
-function AddEvent({ onEventAdded }) {
+const API_URL = "https://daydream-7ho9.onrender.com";
 
+function AddEvent({ onEventAdded }) {
   const [title, setTitle] = useState("");
   const [targetDate, setTargetDate] = useState("");
-
+  const [message, setMessage] = useState("");
 
   const handleSubmit = (e) => {
-
     e.preventDefault();
 
-    const storedUser =
-      localStorage.getItem("user");
+    setMessage("");
 
+    const storedUser = localStorage.getItem("user");
 
     if (!storedUser) {
-
-      alert("Please login first.");
-
+      setMessage("Please login first.");
       return;
-
     }
 
-
-    const user =
-      JSON.parse(storedUser);
-
+    const user = JSON.parse(storedUser);
 
     const newEvent = {
-
       title: title,
-
       target_date: targetDate,
-
+      owner: user.id,
     };
 
+    fetch(`${API_URL}/api/events/`, {
+      method: "POST",
 
-    fetch(
-      "http://127.0.0.1:8000/api/events/",
-      {
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-        method: "POST",
-
-        headers: {
-
-          "Content-Type":
-            "application/json",
-
-          "Authorization":
-            `Token ${user.token}`,
-
-        },
-
-        body:
-          JSON.stringify(newEvent),
-
-      }
-    )
-
-      .then((response) => {
+      body: JSON.stringify(newEvent),
+    })
+      .then(async (response) => {
+        const data = await response.json();
 
         if (!response.ok) {
-
           throw new Error(
+            data.detail ||
+            data.error ||
             "Failed to add event"
           );
-
         }
 
-        return response.json();
-
+        return data;
       })
-
       .then((data) => {
-
-        console.log(
-          "Event added:",
-          data
-        );
+        console.log("Event added:", data);
 
         onEventAdded(data);
 
         setTitle("");
-
         setTargetDate("");
-
+        setMessage("");
       })
-
       .catch((error) => {
+        console.error("Error adding event:", error);
 
-        console.error(
-          "Error adding event:",
-          error
-        );
-
+        setMessage(error.message);
       });
-
   };
 
-
   return (
-
     <form
       className="add-event-form"
       onSubmit={handleSubmit}
@@ -109,7 +74,6 @@ function AddEvent({ onEventAdded }) {
       <h2>
         Add New Event
       </h2>
-
 
       <input
         type="text"
@@ -121,7 +85,6 @@ function AddEvent({ onEventAdded }) {
         required
       />
 
-
       <input
         type="datetime-local"
         value={targetDate}
@@ -131,15 +94,18 @@ function AddEvent({ onEventAdded }) {
         required
       />
 
-
       <button type="submit">
         Add Event
       </button>
 
+      {message && (
+        <p className="auth-message">
+          {message}
+        </p>
+      )}
+
     </form>
-
   );
-
 }
 
 export default AddEvent;
