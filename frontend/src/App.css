@@ -1,0 +1,521 @@
+/* =========================================
+   EVENT COUNTDOWN - MODERN UI
+========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Poppins", Arial, sans-serif;
+  background:
+    radial-gradient(circle at 10% 20%, #ffe4ec 0%, transparent 30%),
+    radial-gradient(circle at 90% 10%, #dfe7ff 0%, transparent 30%),
+    linear-gradient(135deg, #f8f5ff, #eef4ff);
+
+  min-height: 100vh;
+  color: #25233a;
+}
+
+
+/* =========================================
+   MAIN APP
+========================================= */
+
+.App {
+  min-height: 100vh;
+  padding: 35px 7%;
+}
+
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 18px 25px;
+  margin-bottom: 55px;
+
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 22px;
+
+  box-shadow: 0 15px 40px rgba(73, 65, 110, 0.08);
+}
+
+nav h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+
+  background: linear-gradient(
+    90deg,
+    #7c5cff,
+    #e56b9f
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+nav button {
+  border: none;
+  padding: 10px 20px;
+
+  border-radius: 12px;
+
+  background: #25233a;
+  color: white;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+nav button:hover {
+  transform: translateY(-2px);
+  opacity: 0.85;
+}
+
+
+/* =========================================
+   HEADINGS
+========================================= */
+
+h1 {
+  text-align: center;
+
+  font-size: clamp(32px, 5vw, 55px);
+
+  margin-bottom: 10px;
+
+  background: linear-gradient(
+    90deg,
+    #6954ff,
+    #db6498
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.App > p {
+  text-align: center;
+  color: #77748b;
+  margin-bottom: 40px;
+}
+
+
+/* =========================================
+   ADD EVENT
+========================================= */
+
+.add-event-form,
+.edit-event {
+  max-width: 650px;
+  margin: 30px auto;
+
+  padding: 30px;
+
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 255, 255, 0.9);
+
+  border-radius: 25px;
+
+  box-shadow:
+    0 20px 50px rgba(76, 67, 120, 0.12);
+}
+
+.add-event-form h2,
+.edit-event h2 {
+  margin-top: 0;
+
+  font-size: 24px;
+
+  color: #3a3655;
+}
+
+
+/* =========================================
+   INPUTS
+========================================= */
+
+input {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  margin: 8px 0;
+
+  border: 1px solid #ddd9ed;
+
+  border-radius: 13px;
+
+  background: rgba(255, 255, 255, 0.8);
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition: 0.25s;
+}
+
+input:focus {
+  border-color: #8b78ff;
+
+  box-shadow:
+    0 0 0 4px rgba(139, 120, 255, 0.12);
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+button {
+  border: none;
+
+  padding: 12px 22px;
+
+  margin-top: 10px;
+
+  border-radius: 13px;
+
+  background: linear-gradient(
+    135deg,
+    #765cff,
+    #b866e5
+  );
+
+  color: white;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+button:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 10px 25px rgba(118, 92, 255, 0.25);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+
+/* =========================================
+   EVENT GRID
+========================================= */
+
+.events-container {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(280px, 1fr));
+
+  gap: 25px;
+
+  max-width: 1200px;
+
+  margin: 50px auto;
+}
+
+
+/* =========================================
+   EVENT CARD
+========================================= */
+
+.event-card {
+  position: relative;
+
+  padding: 28px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.85),
+      rgba(247, 244, 255, 0.75)
+    );
+
+  backdrop-filter: blur(18px);
+
+  border-radius: 25px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.9);
+
+  box-shadow:
+    0 18px 45px
+    rgba(66, 58, 105, 0.12);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  overflow: hidden;
+}
+
+.event-card::before {
+  content: "";
+
+  position: absolute;
+
+  width: 100px;
+  height: 100px;
+
+  top: -50px;
+  right: -50px;
+
+  background: #d8ceff;
+
+  border-radius: 50%;
+
+  opacity: 0.45;
+}
+
+.event-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow:
+    0 25px 55px
+    rgba(66, 58, 105, 0.18);
+}
+
+
+/* =========================================
+   EVENT TITLE
+========================================= */
+
+.event-card h2 {
+  margin-top: 0;
+
+  font-size: 23px;
+
+  color: #353149;
+}
+
+
+/* =========================================
+   EVENT DATE
+========================================= */
+
+.event-card p {
+  color: #77748b;
+
+  font-size: 14px;
+}
+
+
+/* =========================================
+   COUNTDOWN
+========================================= */
+
+.countdown {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 8px;
+
+  margin: 25px 0;
+}
+
+.countdown div {
+  text-align: center;
+
+  padding: 12px 5px;
+
+  background: rgba(
+    121,
+    102,
+    255,
+    0.08
+  );
+
+  border-radius: 13px;
+}
+
+.countdown strong {
+  display: block;
+
+  font-size: 23px;
+
+  color: #6c54e8;
+}
+
+.countdown span {
+  font-size: 10px;
+
+  text-transform: uppercase;
+
+  color: #8b879c;
+}
+
+
+/* =========================================
+   EDIT / DELETE BUTTONS
+========================================= */
+
+.event-card button {
+  margin-right: 8px;
+}
+
+.event-card button:last-child {
+  background: linear-gradient(
+    135deg,
+    #ff6688,
+    #e85272
+  );
+}
+
+
+/* =========================================
+   AUTH PAGES
+========================================= */
+
+.auth-form {
+  width: min(420px, 90%);
+
+  margin: 80px auto;
+
+  padding: 40px;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.72
+  );
+
+  backdrop-filter: blur(20px);
+
+  border-radius: 28px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.9);
+
+  box-shadow:
+    0 25px 60px
+    rgba(70, 60, 110, 0.14);
+}
+
+.auth-form h1 {
+  font-size: 34px;
+
+  margin-bottom: 5px;
+}
+
+.auth-form h2 {
+  text-align: center;
+
+  color: #46425d;
+
+  margin-bottom: 25px;
+}
+
+.auth-form button {
+  width: 100%;
+
+  margin-top: 15px;
+}
+
+.auth-form p {
+  text-align: center;
+
+  color: #77748b;
+
+  margin-top: 20px;
+}
+
+.auth-form a {
+  color: #7159ee;
+
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+.auth-form a:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   EDIT BUTTON AREA
+========================================= */
+
+.edit-event button {
+  margin-right: 10px;
+}
+
+.edit-event button:last-child {
+  background: #77748b;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .App {
+    padding: 20px;
+  }
+
+  nav {
+    padding: 15px;
+  }
+
+  nav h2 {
+    font-size: 18px;
+  }
+
+  h1 {
+    font-size: 34px;
+  }
+
+  .add-event-form,
+  .edit-event {
+    padding: 22px;
+  }
+
+  .events-container {
+    grid-template-columns: 1fr;
+  }
+
+  .countdown strong {
+    font-size: 18px;
+  }
+
+}
+.login-caption {
+  text-align: center;
+  margin: -10px 0 6px;
+  color: #5f5578;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.login-subcaption {
+  text-align: center;
+  margin: 0 0 25px;
+  color: #9994aa;
+  font-size: 13px;
+}
