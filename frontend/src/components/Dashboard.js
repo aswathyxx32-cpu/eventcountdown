@@ -1,133 +1,182 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
+import EventCard from "./EventCard";
+import AddEvent from "./AddEvent";
+import EditEvent from "./EditEvent";
 
 const API_URL = "https://daydream-7ho9.onrender.com";
 
-function Register() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
+function Dashboard() {
+  const [events, setEvents] = useState([]);
+  const [editingEvent, setEditingEvent] = useState(null);
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setMessage("");
+  // LOGOUT
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
-    if (password !== confirmPassword) {
-      setMessage("Passwords do not match.");
+  // GET USER EVENTS
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      navigate("/login");
       return;
     }
 
-    fetch(`${API_URL}/api/register/`, {
-      method: "POST",
+    const user = JSON.parse(storedUser);
+
+    fetch(`${API_URL}/api/events/?owner=${user.id}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Token ${user.token}`,
       },
-      body: JSON.stringify({
-        username: username,
-        password: password,
-      }),
     })
       .then(async (response) => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || "Registration failed");
+          throw new Error(
+            data.detail || "Failed to fetch events"
+          );
         }
 
         return data;
       })
       .then((data) => {
-        console.log("REGISTER RESPONSE:", data);
-
-        if (data.error) {
-          setMessage(data.error);
-          return;
-        }
-
-        setMessage("Account created successfully! ✨");
-
-        setUsername("");
-        setPassword("");
-        setConfirmPassword("");
-
-        setTimeout(() => {
-          navigate("/login");
-        }, 1200);
+        setEvents(data);
       })
       .catch((error) => {
-        console.error("Registration error:", error);
+        console.error("Error fetching events:", error);
+      });
+  }, [navigate]);
 
-        setMessage(
-          error.message || "Unable to connect to server."
+  // ADD EVENT
+  const handleEventAdded = (newEvent) => {
+    setEvents((previousEvents) => [
+      ...previousEvents,
+      newEvent,
+    ]);
+  };
+
+  // DELETE EVENT
+  const handleDelete = (id) => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      navigate("/login");
+      return;
+    }
+
+    const user = JSON.parse(storedUser);
+
+    fetch(`${API_URL}/api/events/${id}/`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Token ${user.token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete event");
+        }
+
+        setEvents((previousEvents) =>
+          previousEvents.filter(
+            (event) => event.id !== id
+          )
         );
+      })
+      .catch((error) => {
+        console.error("Error deleting event:", error);
       });
   };
 
+  // EDIT EVENT
+  const handleEdit = (event) => {
+    setEditingEvent(event);
+  };
+
+  // EVENT UPDATED
+  const handleEventUpdated = (updatedEvent) => {
+    setEvents((previousEvents) =>
+      previousEvents.map((event) =>
+        event.id === updatedEvent.id
+          ? updatedEvent
+          : event
+      )
+    );
+
+    setEditingEvent(null);
+  };
+
   return (
-    <div className="auth-form">
+    <div className="App">
 
-      <h1>Daydream ✨</h1>
+      <nav>
 
-      <h2>Create Your Account</h2>
+        <h2>
+          Daydream ✨
+        </h2>
 
-      <p className="login-caption">
-        Your next special moment starts here.
-      </p>
+        <div>
 
-      <p className="login-subcaption">
-        Create an account and start counting down.
-      </p>
+          <button onClick={handleLogout}>
+            Logout
+          </button>
 
-      <form onSubmit={handleSubmit}>
+          {" | "}
 
-        <input
-          type="text"
-          placeholder="Choose a username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
+          <Link to="/register">
+            Register
+          </Link>
+
+        </div>
+
+      </nav>
+
+      <h1>
+        Your Upcoming Moments
+      </h1>
+
+      <AddEvent
+        onEventAdded={handleEventAdded}
+      />
+
+      {editingEvent && (
+        <EditEvent
+          event={editingEvent}
+          onEventUpdated={handleEventUpdated}
+          onCancel={() => setEditingEvent(null)}
         />
-
-        <input
-          type="password"
-          placeholder="Create a password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Confirm password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
-
-        <button type="submit">
-          Create Account
-        </button>
-
-      </form>
-
-      {message && (
-        <p className="auth-message">
-          {message}
-        </p>
       )}
 
-      <p>
-        Already have an account?{" "}
-        <Link to="/login">
-          Login
-        </Link>
-      </p>
+      <div className="events-container">
+
+        {events.length === 0 ? (
+          <p>
+            You don't have any events yet.
+          </p>
+        ) : (
+          events.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+            />
+          ))
+        )}
+
+      </div>
 
     </div>
   );
 }
 
-export default Register;
+export default Dashboard;
